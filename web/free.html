@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>FREE KEY</title>
+
+<style>
+body{
+background:black;
+color:#00ff9f;
+font-family:monospace;
+text-align:center;
+padding-top:100px;
+}
+
+button{
+background:#111;
+color:#00ff9f;
+border:1px solid #00ff9f;
+padding:15px 25px;
+font-size:18px;
+cursor:pointer;
+}
+
+#keybox{
+margin-top:30px;
+font-size:20px;
+}
+</style>
+
+</head>
+<body>
+
+<h2>FREE KEY</h2>
+
+<button onclick="getKey()">GET KEY</button>
+
+<div id="keybox"></div>
+
+<script>
+
+const API="https://YOUR-WORKER.workers.dev/api/free"
+
+function deviceID(){
+
+let id=localStorage.getItem("device")
+
+if(!id){
+
+id=Math.random().toString(36).substring(2)
+
+localStorage.setItem("device",id)
+
+}
+
+return id
+}
+
+async function getKey(){
+
+const device=deviceID()
+
+const res=await fetch(API,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+device:device
+})
+})
+
+const data=await res.json()
+
+if(data.key){
+
+document.getElementById("keybox").innerHTML=
+"KEY:<br>"+data.key
+
+}else{
+
+document.getElementById("keybox").innerText=
+JSON.stringify(data)
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
