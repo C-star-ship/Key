@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>ADMIN DASHBOARD</title>
+
+<link rel="stylesheet" href="css/hacker.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<h1>KEY SERVER ADMIN</h1>
+
+<div class="terminal">
+
+<p>SERVER STATUS: ONLINE</p>
+
+<p>Total Users: <span id="users">0</span></p>
+
+</div>
+
+
+<h2>Create VIP Key</h2>
+
+<input id="days" placeholder="Days">
+
+<button onclick="createKey()">CREATE KEY</button>
+
+<div class="keybox" id="newkey"></div>
+
+
+<h2>Revoke Key</h2>
+
+<input id="revokekey" placeholder="Key">
+
+<button onclick="revokeKey()">REVOKE</button>
+
+
+<h2>User Chart</h2>
+
+<canvas id="chart" width="400" height="200"></canvas>
+
+
+<h2>Recent Logs</h2>
+
+<div class="terminal" id="logs"></div>
+
+
+<script src="js/api.js"></script>
+
+<script>
+
+/* API URL */
+
+const API="https://YOUR-WORKER.workers.dev"
+
+
+/* load stats */
+
+async function loadStats(){
+
+const res=await fetch(API+"/api/stats")
+
+const data=await res.json()
+
+document.getElementById("users").innerText=data.total_users
+
+
+/* chart */
+
+const ctx=document.getElementById("chart").getContext("2d")
+
+new Chart(ctx,{
+type:"line",
+data:{
+labels:["Users"],
+datasets:[{
+label:"Total Users",
+data:[data.total_users],
+borderColor:"#00ff9f",
+fill:false
+}]
+}
+})
+
+
+/* logs */
+
+let logbox=document.getElementById("logs")
+
+logbox.innerHTML=""
+
+for(let i=0;i<data.recent_logs;i++){
+
+logbox.innerHTML+=`<p>user activity detected</p>`
+
+}
+
+}
+
+
+/* create key */
+
+async function createKey(){
+
+let days=document.getElementById("days").value
+
+const res=await fetch(API+"/api/create",{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+days:parseInt(days)
+
+})
+
+})
+
+const data=await res.json()
+
+document.getElementById("newkey").innerText=data.key
+
+}
+
+
+/* revoke key */
+
+async function revokeKey(){
+
+let key=document.getElementById("revokekey").value
+
+await fetch(API+"/api/revoke",{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+key:key
+
+})
+
+})
+
+alert("Key revoked")
+
+}
+
+
+/* auto refresh */
+
+loadStats()
+
+setInterval(loadStats,10000)
+
+</script>
+
+</body>
+
+</html>
